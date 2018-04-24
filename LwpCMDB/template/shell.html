@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>terminal</title>
+{% endblock %}
+
+{% block style %}
+    <script src = "/static/vendor/jquery/jquery-3.2.1.min.js"></script>
+    <script src = "/static/vendor/bootstrap/js/bootstrap-modal.js"></script>
+{% endblock %}
+
+{% block label %}
+    <div class="page-header">
+        <h1>SHELL窗口 <small style="color: #2e6da4">( {{ ip }} )</small></h1>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="panel panel-default">
+        <div id = "ter-result" class="panel-body" style = "background-color:#2e6da4 ;color: white;">
+        {{ result.data|safe }}
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="input-group">
+          <input id = "ter-command" style="color: #2e6da4" type="text" class="form-control" name = "command" placeholder="输入命令……">
+          <span class="input-group-btn">
+            <button id = "ter-commit" class="btn btn-default" style="color: #2e6da4" type="button">提交</button>
+          </span>
+        </div>
+    </div>
+    <script>
+        $(
+             function () {
+                 $("#ter-commit").click(
+                     function () {
+                         var command = $("#ter-command").val();
+                         $("#ter-command").val("");
+                         if(command){
+                             if(command == "clear"){
+                                 $("#ter-result").text("--------------------------------clear--------------------------------")
+                             }else{
+                                 $.ajax(
+                                     {
+                                        url:"/eq/cmd?command="+command,
+                                        type:"get",
+                                        data:"",
+                                        success:function (data) {
+                                            var result = data["data"];
+                                            var line = result.replace("[01;","%");
+                                            $("#ter-result").append(
+                                                "<p>"+line+"</p>"
+                                            )
+                                        },
+                                         error:function (error) {
+                                             console.log(data)
+                                         }
+                                     }
+                                 )
+                              }
+                         }else {
+                             alert("命令不能为空")
+                         }
+                     }
+                 )
+             }
+        )
+
+    </script>
+{% endblock %}

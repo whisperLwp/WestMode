@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}
+    用户管理
+{% endblock %}
+
+{% block style %}
+    <script src = "/static/vendor/jquery/jquery-3.2.1.min.js"></script>
+    <script src = "/static/vendor/bootstrap/js/bootstrap-modal.js"></script>
+    <style>
+    fieldset{
+        float: none;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    </style>
+{% endblock %}
+
+{% block label %}
+    <div class="page-header">
+        <h1>用户信息<small style="color: #2e6da4">( {{ phone }} )</small></h1>
+    </div>
+{% endblock %}
+
+{% block content %}
+<fieldset>
+    <div class="row">
+       <div class="col-lg-6">
+         <label for="basic-url" style="color: #2e6da4">用户名</label>
+           <a id="nameE" style="color: red"></a>
+           <a id="nameS" style="color: green"></a>
+         <form id="user-form">
+         <div class="input-group">
+             <input id="userN" type="text" name="userN" class="form-control" placeholder="{{ name }}">
+             <span class="input-group-btn">
+                <button id="userB" class="btn btn-default" type="button" style="color: #2e6da4">提交</button>
+            </span>
+         </div><!-- /input-group -->
+         </form>
+      </div><!-- /.col-lg-6 -->
+    </div><!-- /control-group -->
+    <br>
+    <div class="row">
+       <div class="col-lg-6">
+          <label for="basic-url" style="color: #2e6da4">电话</label>
+          <input id="phoneN" type="text"  readonly="readonly" class="form-control" placeholder="{{ phone }}" aria-describedby="basic-addon2">
+          <br>
+          <div class="alert alert-info" role="alert">用户电话号码禁止修改！</div>
+        </div><!-- /input-group -->
+    </div><!-- /control-group -->
+    <br>
+    <div class="row">
+       <div class="col-lg-6">
+       <label for="basic-url" style="color: #2e6da4">邮箱</label>
+       <a id="emlE" style="color: red"></a>
+       <a id="emlS" style="color: green"></a>
+       <form id="eml-form">
+         <div class="input-group">
+           <input id="eml" name="eml" type="text" class="form-control" placeholder="{{ email }}">
+             <span class="input-group-btn">
+                <button id="emlB" class="btn btn-default" type="button" style="color: #2e6da4">提交</button>
+            </span>
+         </div><!-- /input-group -->
+       </form>
+      </div><!-- /.col-lg-6 -->
+    </div><!-- /control-group -->
+    <br><br><br>
+    <div class="row">
+        <div  class="col-lg-10">
+            <button type="button" class="btn btn-primary btn-sm navbar-left" data-toggle="modal" data-target = "#changePWD" data-backdrop="static">
+                点击修改密码
+            </button>
+            <div class="modal fade" id="changePWD" tabindex="-1" role="dialog" aria-labelledby="ourRM">
+                <div class="modal-dialog" id="mdDlg" role="document">
+                    <div class="modal-content" id="mdCtt">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" style="color: #1c2d3f">关闭</span>
+                            </button>
+                            <h4 class="modal-title" id="ourRM">修改密码</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form id = "addFM" class = "form-horizontal" role = "form">
+                                <div class = "form-group">
+                                    <label for = "ip" class = "col-sm-2 control-label">原密码</label>
+                                    <div class = "col-sm-10">
+                                        <input type = "text" class = "form-control" id = "oldPWD" name = "oldPWD" >
+                                    </div>
+                                </div>
+                                <div class = "form-group">
+                                    <label for = "port" class = "col-sm-2 control-label">请输入新密码</label>
+                                    <div class = "col-sm-10">
+                                        <input type = "text" class = "form-control" id = "newPWD" name = "newPWD"  >
+                                    </div>
+                                </div>
+                                <div class = "form-group">
+                                    <label for = "username" class = "col-sm-2 control-label">请再次输入</label>
+                                    <div class = "col-sm-10">
+                                        <input type = "text" class = "form-control" id = "newPWD2" name = "newPWD2">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <a id="change-err" style="color: red; font-style: oblique"></a>
+                            <a id="change-sucs" style="color: green"></a>
+                            <button id="change-btn" type="button" class="btn btn-primary">
+                                提交
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>
+<script>
+    var phone = $("#phoneN").attr("placeholder");
+    $(function () {
+       $("#userB").click(function () {
+           data = $("#user-form").serializeArray();
+            var dict = {};
+            $.each(data, function(){
+                dict[this.name] = this.value;
+            });
+            dict["csrfmiddlewaretoken"] = "{{ csrf_token }}";
+            $.ajax(
+                {
+                    url:"/user/uchange/",
+                    type:"get",
+                    data:dict,
+                    success:function (data) {
+                        console.log(data)
+                        var dt = data.data;
+                        var stat = data.state;
+                        if(stat == "success"){
+                            $("#nameS").text(dt)
+                        }else {
+                            $("#nameE").text(dt)
+                        }
+                    }
+                }
+            )
+       })
+    });
+     $(function () {
+       $("#emlB").click(function () {
+            data = $("#eml-form").serializeArray();
+            var dict = {};
+            $.each(data, function(){
+                dict[this.name] = this.value;
+            });
+            dict["csrfmiddlewaretoken"] = "{{ csrf_token }}";
+            $.ajax(
+                {
+                    url:"/user/echange/",
+                    type:"get",
+                    data:dict,
+                    success:function (data) {
+                        var dt = data.data;
+                        var stat = data.state;
+                        if(stat == "success"){
+                            $("#emlS").text(dt)
+                        }else {
+                            $("#emlE").text(dt)
+                        }
+                    }
+                }
+            )
+       })
+    });
+    $(function () {
+        $("#change-btn").click(function () {
+            data = $("#addFM").serializeArray();
+            var dict = {};
+            $.each(data, function(){
+                dict[this.name] = this.value;
+            });
+            dict["csrfmiddlewaretoken"] = "{{ csrf_token }}";
+            var oldpwd = $("#oldPWD").val();
+            var newpwd1 = $("#newPWD").val();
+            var newpwd2 = $("#newPWD2").val();
+            if(oldpwd){
+                 $.ajax(
+                    {
+                        url: "/user/pchange/",
+                        type: "post",
+                        data: dict,
+                        success:function (data) {
+                        var dt = data.data;
+                        var state = data.state;
+                        if (state == "error"){
+                            $("#change-err").text(dt)
+                            $("#change-sucs").text(" ")
+                        }else {
+                            if (state == "success"){
+                                $("#change-sucs").text(dt)
+                                $("#change-err").text(" ")
+                            }else {
+                                console.log(dt)
+                            }
+                        }
+                    },
+                        error:function (error) {
+                            console.log(error);
+                        }
+                    }
+                )
+            }else {
+                $("#error").text("密码不能为空！")
+            }
+
+        })
+    })     
+     
+</script>
+
+{% endblock %}
